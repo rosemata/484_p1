@@ -86,7 +86,7 @@ export default function Account({ session }) {
         />
       </div>
       <div>
-        <label htmlFor="website">Website</label>
+        <label htmlFor="website">TYPE YOUR NOTES BELOW</label>
         <input
           id="website"
           type="website"
