@@ -1,27 +1,12 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import Avatar from './Avatar'
-import algoliasearch from 'algoliasearch/lite';
-import { InstantSearch, SearchBox } from 'react-instantsearch-hooks-web';
-
-const searchClient = algoliasearch('80B2J6TUNA', 'b7e0b77dde3c078c147090b17faa8251');
-const index = searchClient.initIndex('test_NOTES');
 
 export default function Account({ session }) {
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState(null)
   const [website, setWebsite] = useState(null)
   const [avatar_url, setAvatarUrl] = useState(null)
-  
-  // index.saveObjects(records, { autoGenerateObjectIDIfNotExist: true });
-
-  index.setSettings({
-    searchableAttributes: [
-      'Notes',
-    ]
-  }).then(() => {
-    // done
-  });
 
   useEffect(() => {
     async function getProfile() {
@@ -78,9 +63,6 @@ export default function Account({ session }) {
   }
 
   return (
-    <InstantSearch searchClient={searchClient} indexName="instant_search">
-      <SearchBox />
-      
     <div className="form-widget">
       <Avatar
         url={avatar_url}
@@ -129,6 +111,5 @@ export default function Account({ session }) {
         </button>
       </div>
     </div>
-    </InstantSearch>
   )
 }
