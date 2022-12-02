@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
+import { searchClient } from './algoliaClient'
+import { InstantSearch, SearchBox, Hits, Highlight, useInstantSearch } from 'react-instantsearch-hooks-web';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false)
@@ -18,11 +20,34 @@ export default function Auth() {
     }
   }
 
+  
+  function Hit({ hit }) {
+    return (
+      <article>
+        <p>{hit.Date}</p>
+        <h1>
+          <Highlight attribute="Notes" hit={hit} />
+        </h1>
+      </article>
+    );
+  }
+
+  function EmptyQueryBoundary({ children, fallback }) {
+    const { indexUiState } = useInstantSearch();
+  
+    if (!indexUiState.query) {
+      return fallback;
+    }
+  
+    return children;
+  }
+
   return (
+    <InstantSearch searchClient={searchClient} indexName="test_pipedream">
     <div className="row flex flex-center">
       <div className="col-6 form-widget">
         <h1 className="header">Share Class Notes</h1>
-        <p className="description">Sign in via magic link with your email below</p>
+        <p className="description">Sign in to upload your own notes!</p>
         <div>
           <input
             className="inputField"
@@ -46,5 +71,10 @@ export default function Auth() {
         </div>
       </div>
     </div>
+      <SearchBox placeholder="Search" />
+      <EmptyQueryBoundary fallback={null}>
+        <Hits hitComponent={Hit} />
+      </EmptyQueryBoundary>
+    </InstantSearch>
   )
 }
