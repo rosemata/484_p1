@@ -30,12 +30,14 @@ export default function Account({ session }) {
             }
         })
         if (!limitExceeded) setUploadedFiles(uploaded)
+        
 
     }
 
     const handleFileEvent =  (e) => {
         const chosenFiles = Array.prototype.slice.call(e.target.files)
-        handleUploadFiles(chosenFiles);
+        if (handleUploadFiles(chosenFiles));
+        else { return false; }
     }
 
   useEffect(() => {
@@ -141,7 +143,8 @@ export default function Account({ session }) {
         </button>
       </div>
 
-		<div>
+		
+      <div>
 
 			<input id='fileUpload' type='file' multiple
 					accept='application/pdf, image/png'
