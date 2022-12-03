@@ -53,7 +53,7 @@ export default function Avatar({ url, size, onUpload }) {
 
   return (
     <div>
-      {avatarUrl ? (
+      {/* {avatarUrl ? (
         <img
           src={avatarUrl}
           alt="Avatar"
@@ -64,7 +64,7 @@ export default function Avatar({ url, size, onUpload }) {
       (
         <div className="avatar no-image" style={{ height: size, width: size }} />
       )
-      }
+      } */}
       <div style={{ width: size }}>
         <label className="button primary block" htmlFor="single">
           {uploading ? 'Uploading ...' : 'Upload'}
