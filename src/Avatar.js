@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient'
 
 export default function Avatar({ url, size, onUpload }) {
   const [avatarUrl, setAvatarUrl] = useState(null)
-  const [uploading, setUploading] = useState(false)
+  const [fileLimit, setFileLimit] = useState(false)
 
   const handleUploadFiles = files => {
     const uploaded = [...avatarUrl];
