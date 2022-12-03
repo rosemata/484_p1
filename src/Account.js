@@ -10,8 +10,8 @@ export default function Account({ session }) {
   const [website, setWebsite] = useState(null)
   const [avatar_url, setAvatarUrl] = useState(null)
 
-	const [uploadedFiles, setUploadedFiles] = useState([])
-  const [fileLimit, setFileLimit] = useState(false);
+	// const [uploadedFiles, setUploadedFiles] = useState([])
+  const [fileLimit] = useState(false);
 
   useEffect(() => {
     async function getProfile() {
