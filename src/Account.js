@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import Avatar from './Avatar'
 
+// const MAX_COUNT = 5;
+
 export default function Account({ session }) {
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState(null)
   const [website, setWebsite] = useState(null)
   const [avatar_url, setAvatarUrl] = useState(null)
+
+	const [uploadedFiles, setUploadedFiles] = useState([])
+  const [fileLimit, setFileLimit] = useState(false);
 
   useEffect(() => {
     async function getProfile() {
@@ -115,14 +120,14 @@ export default function Account({ session }) {
 			<input id='fileUpload' type='file' multiple
 					accept='application/pdf, image/png'
                     // onChange={handleFileEvent}
-                    // disabled={fileLimit}
+                    disabled={fileLimit}
 			/>
-{/* 
+
 			<label htmlFor='fileUpload'>
 				<a  className={`btn btn-primary ${!fileLimit ? '' : 'disabled' } `}>Upload Files</a>
 			</label>
 
-			<div className="uploaded-files-list">
+			{/* <div className="uploaded-files-list">
 				{uploadedFiles.map(file => (
                     <div >
                         {file.name}
