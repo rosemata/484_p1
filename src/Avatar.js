@@ -5,9 +5,10 @@ export default function Avatar({ url, size, onUpload }) {
   const [avatarUrl, setAvatarUrl] = useState(null)
   const [uploading, setUploading] = useState(false)
 
-  // useEffect(() => {
-  //   if (url) downloadImage(url)
-  // }, [url])
+  useEffect(() => {
+    if (url) 
+    // downloadImage(url)
+  }, [url])
 
   // async function downloadImage(path) {
   //   try {
