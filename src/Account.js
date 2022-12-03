@@ -110,30 +110,6 @@ export default function Account({ session }) {
           Sign Out
         </button>
       </div>
-
-
-      <div>
-
-          <input id='fileUpload' type='file' multiple
-              accept='application/pdf, image/png'
-                        // onChange={handleFileEvent}
-                        disabled={fileLimit}
-          />
-
-          {/* <label htmlFor='fileUpload'>
-            <a  className={`btn btn-primary ${!fileLimit ? '' : 'disabled' } `}>Upload Files</a>
-          </label>
-
-          <div className="uploaded-files-list">
-            {uploadedFiles.map(file => (
-                        <div >
-                            {file.name}
-                        </div>
-                    ))}
-          </div> */}
-
-          </div>
-
     </div>
   )
 }
