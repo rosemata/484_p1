@@ -70,9 +70,9 @@ export default function Avatar({ url, size, onUpload }) {
             visibility: 'hidden',
             position: 'absolute',
           }}
-          type="file"
+          type="file" multiple
           id="single"
-          accept="image/*, pdf"
+          // accept="image/*, pdf"
           onChange={uploadAvatar}
           disabled={uploading}
         />
