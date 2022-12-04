@@ -77,7 +77,7 @@ export default function Account({ session }) {
         <input id="email" type="text" value={session.user.email} disabled />
       </div>
       <div>
-        <label htmlFor="username">Name</label>
+        <label htmlFor="username">Nameasdf</label>
         <input
           id="username"
           type="text"
