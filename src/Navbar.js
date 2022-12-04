@@ -18,9 +18,11 @@ export default function Nav({ session }) {
                 <button><NavLink to="/search">Search</NavLink></button>
                 <button><NavLink to="/account">Update Profile</NavLink></button>
                 <button><NavLink to="/upload">Upload a New Note!</NavLink></button>
-                <button className="button block" onClick={() => supabase.auth.signOut()}>
-                    Sign Out
-                </button>
+                <div>
+                    <button className="button block" onClick={() => supabase.auth.signOut()}>
+                        Sign Out
+                    </button>
+                </div>
             </div>
         )
     }
