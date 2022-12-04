@@ -73,7 +73,7 @@ export default function Upload({ session }) {
             }}
         />
         <div>
-            <label htmlFor="content">TYPE YOUR NOTES BELOW</label>
+            <label htmlFor="content">TYPE YOUR NOTES BELOWabc</label>
             <input
             id="content"
             type="text"
