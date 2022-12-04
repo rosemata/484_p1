@@ -1,71 +1,80 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from "react-router-dom"
 import { supabase } from './supabaseClient'
 import Avatar from './Avatar'
 
 export default function Update({ session }) {
     const [loading, setLoading] = useState(false)
+    const [note, setNote] = useState(null)
     const [title, setTitle] = useState(null)
     const [content, setContent] = useState(null)
     const [avatar_url, setAvatarUrl] = useState(null)
+    const [searchParams] = useSearchParams()
 
     useEffect(() => {
-        async function getNote() {
+        supabase
+        .channel('public:notes')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notes' }, (payload) => {
+            console.log("Note Updated", payload)
+            getNote();
+        })
+        .subscribe();
+    }, [])
+
+    useEffect(() => {
+        getNote()
+    }, [session])
+
+    async function getNote() {
         try {
             setLoading(true)
-            const { user } = session
+            const { data, error } = await supabase
+            .from('notes')
+            .select()
+            .eq('id', searchParams.get('note_id'))
 
-            let { data, error } = await supabase
-            .from('profiles')
-            .select(`username, website, avatar_url`)
-            .eq('id', user.id)
-            .single()
-
-            if (error) {
-            throw error
+            if(error) {
+                throw error
             }
 
-            setUsername(data.username)
-            setWebsite(data.website)
-            setAvatarUrl(data.avatar_url)
+            setNote(data[0])
+            setTitle(data[0].title)
+            setContent(data[0].content)
+            setAvatarUrl(data[0].original_file)
         } catch (error) {
             console.warn(error.message)
         } finally {
             setLoading(false)
         }
-        }
+    }
 
-        getProfile()
-    }, [session])
-
-    async function uploadNote({ title, content, avatar_url }) {
+    async function updateNote({ note, title, content, avatar_url }) {
         try {
-        setLoading(true)
-        const { user } = session
+            setLoading(true)
 
-        const note = {
-            user_id: user.id,
-            title: title,
-            content,
-            original_file: avatar_url,
-            created_at: date,
-            updated_at: new Date(),
-        }
+            let { error } = await supabase
+            .from('notes')
+            .update({
+                title: title,
+                content: content,
+                original_file: avatar_url,
+                updated_at: new Date(),
+            })
+            .eq('id', note.id)
 
-        let { error } = await supabase.from('profiles').update(note)
-
-        if (error) {
-            throw error
-        }
+            if (error) {
+                throw error
+            }
+            alert("Note updated!")
         } catch (error) {
-        alert(error.message)
+            alert(error.message)
         } finally {
-        document.getElementById('upload-note-form').reset();
-        setLoading(false)
+            setLoading(false)
         }
     }
 
     return (
-        <div id="upload-note-form" className="form-widget">
+        <div className="form-widget">
         <div>
             <label htmlFor="Title">Title</label>
             <input
@@ -91,17 +100,17 @@ export default function Update({ session }) {
             type="text"
             value={content || ''}
             onChange={(e) => setContent(e.target.value)}
-            style={{height: '800px'}}
+            style={{height: '300px', width: '100%'}}
             />
         </div>
 
         <div>
             <button
             className="button block primary"
-            onClick={() => uploadNote({ title, content, avatar_url })}
+            onClick={() => updateNote({ note, title, content, avatar_url })}
             disabled={loading}
             >
-            {loading ? 'Loading ...' : 'Add note!'}
+            {loading ? 'Loading ...' : 'Update note!'}
             </button>
         </div>
         </div>

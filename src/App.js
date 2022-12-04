@@ -36,7 +36,7 @@ export default function Home() {
       <Routes>
         <Route path="/" element={!session ? <Auth /> : <List key={session.user.id} session={session}/> }/>
         <Route path="/search" element={<Search />} />
-        <Route path="/preview" element={<Preview />} /> {/* Add passing in file */}
+        <Route path="/preview" element={<Preview />} />
         <Route path="/account" element={!session ? <Auth /> : <Account key={session.user.id} session={session} />} />
         <Route path="/upload" element={!session ? <Auth /> : <Upload key={session.user.id} session={session} />} />
         <Route path="/update" element={!session ? <Auth /> : <Update key={session.user.id} session={session} />} />

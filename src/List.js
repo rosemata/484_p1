@@ -1,37 +1,45 @@
 import { useState, useEffect } from 'react'
+import { createSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 
 export default function List({ session }) {
     const [userId, setUserId] = useState(null)
-    const [notes, setNotes] = useState([]);
+    const [notes, setNotes] = useState([])
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const { user } = session
-
-        setUserId(user.id)
-        getAllNotes()
-
         supabase
         .channel('public:notes')
         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notes' }, (payload) => {
-            console.log("Something changed", payload);
+            console.log("Note Deleted", payload)
             getAllNotes();
         })
         .subscribe();
-      }, [session])
+    }, [])
+
+    useEffect(() => {
+        const { user } = session
+        setUserId(user.id)
+    }, [session])
+
+    useEffect(() => {
+        if(userId != null) {
+            getAllNotes()
+        }
+    }, [userId])
     
     async function getAllNotes() {
-        const { data, error } = await supabase
-        .from('notes')
-        .select()
-        .eq('user_id', userId)
+        try{
+            const { data, error } = await supabase
+            .from('notes')
+            .select()
+            .eq('user_id', userId)
 
-        const newNotes = [];
-        if(error) {
-            console.log(error);
-        } else {
+            const newNotes = []
+            if(error) {
+                throw error
+            } 
             if(data.length != 0) {
-                data.sort((a, b) => a.id - b.id);
                 data.map((note) => {
                     newNotes.push({
                         id: note.id,
@@ -41,36 +49,51 @@ export default function List({ session }) {
                     })
                 })
             }
+            setNotes(newNotes)
+        } catch(error) {
+            console.warn(error.message)
         }
-
-        setNotes(newNotes);
-    };
+    }
 
     async function deleteNote(index, id) {
-        const newNotes = [...notes];
-        const { data, error } = await supabase
-        .from('notes')
-        .delete()
-        .eq('id', id)
+        try{
+            const newNotes = [...notes]
+            const { data, error } = await supabase
+            .from('notes')
+            .delete()
+            .eq('id', id)
 
-        if(error) {
-            console.log(error);
-        } else {
-            newNotes.splice(index, 1);
-            setNotes(newNotes);
+            if(error) {
+                throw error
+            }
+            newNotes.splice(index, 1)
+            setNotes(newNotes)
+        } catch(error) {
+            console.warn(error.message)
         }
-    };
+    }
+
+    function redirect(path, id) {
+        navigate({
+            pathname: `/${path}`,
+            search: createSearchParams({
+                note_id: id,
+            }).toString()
+        })
+    }
 
     function Note({ note, index }) {
+        const dateUploaded = new Date(note.created_at)
+
         return (
           <tr>
             <td>{note.title}</td>
-            <td>{note.created_at}</td>
+            <td>{dateUploaded.toLocaleDateString()}</td>
             {/* <td>{note.tags}</td> */}
-            <td><button>View</button></td>
-            <td><button>Update</button></td>
-            <td><button style={{ backgroundColor:'color' }} onClick={() => deleteNote(index, note.id)}>
-                <i class="fa-solid fa-trash-can"></i> Delete
+            <td><button onClick={() => redirect("preview", note.id)}>View</button></td>
+            <td><button onClick={() => redirect("update", note.id)}>Update</button></td>
+            <td><button onClick={() => deleteNote(index, note.id)}>
+                <i class="fa-solid fa-trash-can" /> Delete
             </button></td>
           </tr>
         );
@@ -78,9 +101,9 @@ export default function List({ session }) {
 
     return (
         <div>
-            Your Notes
-            <div className="list-container" >
-                <table className="table table-striped">
+            <p style={{ fontSize: 'x-large'}}><b>Your Notes</b></p>
+            <div className="list-container">
+                <table className="table table-striped" style={{ width: '100%' }}>
                     <thead>
                         <tr>
                             <th scope="col">Title</th>
@@ -99,6 +122,6 @@ export default function List({ session }) {
                 </table>
             </div>
         </div>
-      )
+    )
 }
 

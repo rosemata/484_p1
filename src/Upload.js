@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import Avatar from './Avatar'
 
@@ -7,36 +8,52 @@ export default function Upload({ session }) {
     const [title, setTitle] = useState(null)
     const [content, setContent] = useState(null)
     const [avatar_url, setAvatarUrl] = useState(null)
+    const [note_id, setNoteId] = useState(null)
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if(note_id != null) {
+            navigate({
+                pathname: "/preview",
+                search: createSearchParams({
+                    note_id: note_id,
+                }).toString()
+            })
+        }
+    }, [note_id])
 
     async function uploadNote({ title, content, avatar_url }) {
         try {
-        setLoading(true)
-        const { user } = session
+            setLoading(true)
+            const { user } = session
 
-        const note = {
-            user_id: user.id,
-            title: title,
-            content,
-            original_file: avatar_url,
-            created_at: new Date(),
-            updated_at: new Date(),
-        }
+            const note = {
+                user_id: user.id,
+                title: title,
+                content: content,
+                original_file: avatar_url,
+                created_at: new Date(),
+                updated_at: new Date(),
+            }
 
-        let { error } = await supabase.from('notes').insert(note)
+            let { data, error } = await supabase.from('notes').upsert(note).select()
 
-        if (error) {
-            throw error
-        }
+            if (error) {
+                throw error
+            }
+            
+            alert('Note uploaded!')
+            setNoteId(data[0].id)
         } catch (error) {
-        alert(error.message)
+            alert(error.message)
         } finally {
-        document.getElementById('upload-note-form').reset();
-        setLoading(false)
+            
+            setLoading(false)
         }
     }
 
     return (
-        <div id="upload-note-form" className="form-widget">
+        <div className="form-widget">
         <div>
             <label htmlFor="Title">Title</label>
             <input
@@ -62,7 +79,7 @@ export default function Upload({ session }) {
             type="text"
             value={content || ''}
             onChange={(e) => setContent(e.target.value)}
-            style={{height: '800px'}}
+            style={{height: '300px', width: '100%'}}
             />
         </div>
 
