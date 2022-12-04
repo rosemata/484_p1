@@ -92,9 +92,7 @@ export default function List({ session }) {
             {/* <td>{note.tags}</td> */}
             <td><button onClick={() => redirect("preview", note.id)}>View</button></td>
             <td><button onClick={() => redirect("update", note.id)}>Update</button></td>
-            <td><button onClick={() => deleteNote(index, note.id)}>
-                <i class="fa-solid fa-trash-can" /> Delete
-            </button></td>
+            <td><button onClick={() => deleteNote(index, note.id)}>Delete</button></td>
           </tr>
         );
     }

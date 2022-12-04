@@ -41,9 +41,10 @@ export default function Search() {
         <div>
         <InstantSearch searchClient={searchClient} indexName="Sharenote">
         <SearchBox placeholder="Search" />
-        <EmptyQueryBoundary fallback={null}>
+        <Hits hitComponent={Hit} />
+        {/* <EmptyQueryBoundary fallback={null}>
             <Hits hitComponent={Hit} />
-        </EmptyQueryBoundary>
+        </EmptyQueryBoundary> */}
         </InstantSearch>
         </div>
     )
