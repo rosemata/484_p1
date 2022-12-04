@@ -92,11 +92,6 @@ export default function Upload({ session }) {
             {loading ? 'Loading ...' : 'Add note!'}
             </button>
         </div>
-        
-        <div>
-            <label htmlFor="content">IMAGE TO TEXT</label>
-        </div>
-        
         </div>
     )
 }
