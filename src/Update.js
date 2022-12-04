@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from "react-router-dom"
 import { supabase } from './supabaseClient'
-import Avatar from './Avatar'
+import Tesseract from 'tesseract.js';
 
 export default function Update({ session }) {
     const [loading, setLoading] = useState(false)
     const [note, setNote] = useState(null)
     const [title, setTitle] = useState(null)
     const [content, setContent] = useState(null)
-    const [avatar_url, setAvatarUrl] = useState(null)
+    const [image_url, setImageUrl] = useState(null)
+    const [progress, setProgress] = useState(0);
     const [searchParams] = useSearchParams()
 
     useEffect(() => {
@@ -40,7 +41,7 @@ export default function Update({ session }) {
             setNote(data[0])
             setTitle(data[0].title)
             setContent(data[0].content)
-            setAvatarUrl(data[0].original_file)
+            setImageUrl(data[0].original_file)
         } catch (error) {
             console.warn(error.message)
         } finally {
@@ -48,7 +49,28 @@ export default function Update({ session }) {
         }
     }
 
-    async function updateNote({ note, title, content, avatar_url }) {
+    function handleSubmit(image) {
+        setLoading(true);
+        Tesseract.recognize(image, 'eng', {
+            logger: (m) => {
+                if (m.status === 'recognizing text') {
+                    setProgress(parseInt(m.progress * 100));
+                }
+            }
+        })
+        .catch((error) => {
+            console.warn(error)
+            alert("File type not supported")
+        })
+        .then(({ data: {text} }) => {
+            console.log(text)
+            setImageUrl(image)
+            setContent(text)
+            setLoading(false)
+        });
+    }
+
+    async function updateNote({ note, title, content, image_url }) {
         try {
             setLoading(true)
 
@@ -57,7 +79,7 @@ export default function Update({ session }) {
             .update({
                 title: title,
                 content: content,
-                original_file: avatar_url,
+                original_file: image_url,
                 updated_at: new Date(),
             })
             .eq('id', note.id)
@@ -67,7 +89,8 @@ export default function Update({ session }) {
             }
             alert("Note updated!")
         } catch (error) {
-            alert(error.message)
+            alert("Title cannot be empty")
+            console.warn(error.message)
         } finally {
             setLoading(false)
         }
@@ -84,15 +107,16 @@ export default function Update({ session }) {
             onChange={(e) => setTitle(e.target.value)}
             />
         </div>
-        Upload notes here
-        <Avatar
-            url={avatar_url}
-            size={150}
-            onUpload={(url) => {
-            setAvatarUrl(url)
-            //   updateProfile({ username, website, avatar_url: url })
-            }}
+        <label htmlFor="file">File</label>
+        <input
+            id="file"
+            type="file"
+            onChange={(e) =>
+                handleSubmit(URL.createObjectURL(e.target.files[0]))
+            }
         />
+        <progress value={progress} max="100" style={{ width: '100%' }}></progress>
+        {progress != 0 && <span>{progress}%</span> }
         <div>
             <label htmlFor="content">TYPE YOUR NOTES BELOW</label>
             <input
@@ -107,7 +131,7 @@ export default function Update({ session }) {
         <div>
             <button
             className="button block primary"
-            onClick={() => updateNote({ note, title, content, avatar_url })}
+            onClick={() => updateNote({ note, title, content, image_url })}
             disabled={loading}
             >
             {loading ? 'Loading ...' : 'Update note!'}

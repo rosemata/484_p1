@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from './supabaseClient'
-import Avatar from './Avatar'
+import Tesseract from 'tesseract.js';
 
 export default function Upload({ session }) {
     const [loading, setLoading] = useState(false)
     const [title, setTitle] = useState(null)
     const [content, setContent] = useState(null)
-    const [avatar_url, setAvatarUrl] = useState(null)
+    const [image_url, setImageUrl] = useState(null)
     const [note_id, setNoteId] = useState(null)
+    const [progress, setProgress] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,7 +23,28 @@ export default function Upload({ session }) {
         }
     }, [note_id])
 
-    async function uploadNote({ title, content, avatar_url }) {
+    function handleSubmit(image) {
+        setLoading(true);
+        Tesseract.recognize(image, 'eng', {
+            logger: (m) => {
+                if (m.status === 'recognizing text') {
+                    setProgress(parseInt(m.progress * 100));
+                }
+            }
+        })
+        .catch((error) => {
+            console.warn(error)
+            alert("File type not supported")
+        })
+        .then(({ data: {text} }) => {
+            console.log(text)
+            setImageUrl(image)
+            setContent(text)
+            setLoading(false)
+        });
+    }
+
+    async function uploadNote({ title, content, image_url }) {
         try {
             setLoading(true)
             const { user } = session
@@ -31,7 +53,7 @@ export default function Upload({ session }) {
                 user_id: user.id,
                 title: title,
                 content: content,
-                original_file: avatar_url,
+                original_file: image_url,
                 created_at: new Date(),
                 updated_at: new Date(),
             }
@@ -45,9 +67,9 @@ export default function Upload({ session }) {
             alert('Note uploaded!')
             setNoteId(data[0].id)
         } catch (error) {
-            alert(error.message)
+            alert("Title cannot be empty")
+            console.warn(error.message)
         } finally {
-            
             setLoading(false)
         }
     }
@@ -63,15 +85,16 @@ export default function Upload({ session }) {
             onChange={(e) => setTitle(e.target.value)}
             />
         </div>
-        Upload notes here
-        <Avatar
-            url={avatar_url}
-            size={150}
-            onUpload={(url) => {
-            setAvatarUrl(url)
-            //   updateProfile({ username, website, avatar_url: url })
-            }}
+        <label htmlFor="file">File</label>
+        <input
+            id="file"
+            type="file"
+            onChange={(e) =>
+                handleSubmit(URL.createObjectURL(e.target.files[0]))
+            }
         />
+        <progress value={progress} max="100" style={{ width: '100%' }}></progress>
+        {progress != 0 && <span>{progress}%</span> }
         <div>
             <label htmlFor="content">TYPE YOUR NOTES BELOW</label>
             <input
@@ -86,7 +109,7 @@ export default function Upload({ session }) {
         <div>
             <button
             className="button block primary"
-            onClick={() => uploadNote({ title, content, avatar_url })}
+            onClick={() => uploadNote({ title, content, image_url })}
             disabled={loading}
             >
             {loading ? 'Loading ...' : 'Add note!'}
