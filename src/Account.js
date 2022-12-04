@@ -110,6 +110,11 @@ export default function Account({ session }) {
           Sign Out
         </button>
       </div>
+      <div>
+        <button className="button block" onClick={() => supabase.auth.signOut()}>
+          Test
+        </button>
+      </div>
     </div>
   )
 }
